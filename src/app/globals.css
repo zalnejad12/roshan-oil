@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/Vazir.woff2") format("woff2"), url("/fonts/Vazir.woff") format("woff");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/Vazir-Bold.woff2") format("woff2"), url("/fonts/Vazir-Bold.woff") format("woff");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Vazir";
+  src: url("/fonts/Vazir-Medium.woff2") format("woff2"), url("/fonts/Vazir-Medium.woff") format("woff");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+
+* { box-sizing: border-box; padding: 0; margin: 0; }
+
+html, body {
+  direction: rtl;
+  font-family: Vazir, Tahoma, Arial, sans-serif;
+  background: #fff;
+  color: #0A0A0A;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #E31E24; border-radius: 3px; }
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 inline-flex items-center gap-2 cursor-pointer;
+  }
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 inline-flex items-center gap-2 cursor-pointer;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+  .section-title { @apply text-2xl md:text-3xl font-bold text-dark mb-1; }
+  .section-subtitle { @apply text-gray-500 text-sm md:text-base; }
+  .input-field {
+    @apply w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all bg-white;
+  }
+  .container-custom { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+}
+
+/* WhatsApp button */
+.whatsapp-btn {
+  position: fixed; bottom: 24px; left: 24px; z-index: 1000;
+  width: 56px; height: 56px; background: #25D366; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+  transition: all 0.3s ease; cursor: pointer;
+}
+.whatsapp-btn:hover { transform: scale(1.1); }
+
+/* Product card hover actions */
+.product-card .product-actions {
+  opacity: 0; transform: translateY(8px); transition: all 0.3s ease;
+}
+.product-card:hover .product-actions { opacity: 1; transform: translateY(0); }
