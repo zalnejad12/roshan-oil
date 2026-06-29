@@ -31,6 +31,8 @@ export default function AdminProductsPage() {
   const [form, setForm] = useState<any>(emptyForm);
   const [search, setSearch] = useState("");
   const [saving, setSaving] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+  const [fromDb, setFromDb] = useState(false);
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -40,11 +42,42 @@ export default function AdminProductsPage() {
       const { data, error } = await supabase.from("products").select("*").order("created_at", { ascending: false });
       if (error) throw error;
       setProducts(data || []);
+      setFromDb(true);
     } catch {
       const { products: local } = await import("@/data/products");
       setProducts(local as any[]);
+      setFromDb(false);
     }
     setLoading(false);
+  }
+
+  async function seedProducts() {
+    if (!confirm("همه محصولات اولیه به دیتابیس اضافه شوند؟")) return;
+    setSeeding(true);
+    try {
+      const { products: local } = await import("@/data/products");
+      const rows = (local as any[]).map((p) => ({
+        name: p.name, slug: p.slug, brand: p.brand, category: p.category,
+        price: p.price, original_price: p.originalPrice || null,
+        discount: p.discount || 0,
+        short_description: p.shortDescription, description: p.description,
+        viscosity: p.viscosity || null, api_standard: p.apiStandard || null,
+        oil_type: p.oilType || null, volume: p.volume || null,
+        compatible_cars: p.compatibleCars || [], tags: p.tags || [],
+        stock_count: p.stockCount || 0, in_stock: p.inStock,
+        is_best_seller: p.isBestSeller || false, is_new: p.isNew || false,
+        is_featured: p.isFeatured || false,
+        rating: p.rating || 5, review_count: p.reviewCount || 0,
+        images: p.images || [],
+      }));
+      const { error } = await supabase.from("products").upsert(rows, { onConflict: "slug" });
+      if (error) throw error;
+      toast.success("محصولات اولیه بارگذاری شدند ✅");
+      fetchProducts();
+    } catch (e: any) {
+      toast.error(e.message || "خطا در بارگذاری");
+    }
+    setSeeding(false);
   }
 
   function openAdd() { setForm(emptyForm); setEditingId(null); setShowForm(true); }
@@ -87,6 +120,18 @@ export default function AdminProductsPage() {
           </div>
           <button onClick={openAdd} className="btn-primary text-sm"><Plus size={16} /> افزودن محصول</button>
         </div>
+
+        {!fromDb && !loading && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="text-sm text-yellow-800">
+              ⚠️ این محصولات هنوز در دیتابیس نیستند. برای ویرایش و حذف، ابتدا آن‌ها را به دیتابیس منتقل کنید.
+            </div>
+            <button onClick={seedProducts} disabled={seeding}
+              className="bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-bold px-4 py-2 rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap">
+              {seeding ? "در حال انتقال..." : "بارگذاری محصولات اولیه"}
+            </button>
+          </div>
+        )}
         <div className="relative mb-4">
           <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="جستجو..." className="input-field pr-10 bg-white" />
